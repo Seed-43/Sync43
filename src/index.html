@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="assets/mdi/css/materialdesignicons.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sync43</title>
+  </head>
+
+  <body>
+    <div id="app">
+
+      <!-- SIDEBAR -->
+      <div id="sidebar">
+        <div id="sidebar-header">
+          <div class="wordmark">
+            <span class="py">Sync</span><span class="name">43</span>
+          </div>
+          <div class="tagline">Construction Data Sync by Seed43</div>
+        </div>
+
+        <div style="padding:14px 12px 4px;">
+          <button class="btn btn-primary" style="width:100%; font-size:12.5px;" id="create-project-btn">
+            <span class="mdi mdi-plus"></span> Create Project
+          </button>
+        </div>
+
+        <div id="sidebar-nav">
+          <div class="nav-section-label">Projects</div>
+          <button class="nav-item active" data-page="dashboard">
+            <span class="mdi mdi-monitor-dashboard"></span> Dashboard
+          </button>
+          <button class="nav-item" data-page="projects">
+            <span class="mdi mdi-folder-network"></span> My Projects
+          </button>
+
+          <div class="nav-section-label">Account</div>
+          <button class="nav-item" data-page="settings">
+            <span class="mdi mdi-tune-variant"></span> Settings
+          </button>
+          <button class="nav-item" data-page="grouppolicies">
+            <span class="mdi mdi-account-badge"></span> Group Policies
+          </button>
+        </div>
+
+        <div id="sidebar-footer">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <span class="status-dot online" id="conn-dot"></span>
+            <span style="font-size:11px; color:var(--color-text-secondary);" id="conn-label">Connected · 3 peers</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div id="main">
+
+        <!-- TOPBAR -->
+        <div id="topbar">
+          <span id="topbar-title"></span>
+          <div id="topbar-controls"></div>
+        </div>
+
+        <div id="content">
+
+          <!-- DASHBOARD -->
+          <div id="page-dashboard" class="page">
+            <div class="page-intro">
+              <h2>Activity</h2>
+              <p>Live sync status across all your projects and peers.</p>
+            </div>
+            <div class="stat-row" id="dashboard-stats"></div>
+            <div class="card" style="padding:10px 16px 14px;">
+              <div class="log-header">
+                <span class="log-file">File</span>
+                <span class="log-project">Project</span>
+                <span class="log-folder">Folder</span>
+                <span class="log-peer">Peer</span>
+                <span class="hstatus">Status</span>
+                <span class="log-time">Time</span>
+              </div>
+              <div id="activity-log"></div>
+            </div>
+          </div>
+
+          <!-- MY PROJECTS -->
+          <div id="page-projects" class="page" style="display:none;">
+            <div id="projects-list-view">
+              <div class="page-intro">
+                <h2>My Projects</h2>
+                <p>Every project you've created or been invited to. Click a row to manage sharing, permissions and policies.</p>
+              </div>
+              <div class="card" style="padding:8px 12px 12px;">
+                <table class="projects-table">
+                  <thead>
+                    <tr>
+                      <th style="width:24px;"></th>
+                      <th>Name</th>
+                      <th>Number</th>
+                      <th>Address</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Created</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="projects-tbody"></tbody>
+                </table>
+                <div id="no-projects" class="empty-state" style="display:none;">
+                  <span class="mdi mdi-folder-open-outline"></span>
+                  <div class="es-main">No projects yet</div>
+                  <div class="es-sub">Click + Create Project to get started.</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="project-settings-view" style="display:none;">
+
+              <!-- Dash Tab (project files, linking & publishing) -->
+              <div id="proj-tab-dash" class="proj-tab-content"></div>
+
+              <!-- Share Tab -->
+              <div id="proj-tab-share" class="proj-tab-content">
+                <div class="card" style="max-width:560px;">
+                  <div class="section-label"><span class="mdi mdi-share-variant"></span> Share Project</div>
+                  <div class="help-text" style="margin-bottom:12px;">Share this Seed Code to invite collaborators to the project.</div>
+                  <div class="seed-code" id="proj-settings-seed-code">S43-XXXX-XXXX</div>
+                  <div class="copy-hint">Click to copy</div>
+                  <div style="display:flex; gap:8px; margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1;" id="proj-share-email-btn">
+                      <span class="mdi mdi-email-outline"></span> Share via Email
+                    </button>
+                    <button class="btn btn-secondary" style="flex:1;" id="proj-copy-seed-btn">
+                      <span class="mdi mdi-content-copy"></span> Copy Code
+                    </button>
+                  </div>
+                  <div id="proj-email-share-panel" style="display:none; margin-top:16px;">
+                    <div class="field-label">Email Addresses</div>
+                    <div class="help-text">Enter one or more emails. These users will be pre-approved for access.</div>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                      <input class="input" id="proj-invite-email-input" placeholder="name@company.com" style="flex:1;" />
+                      <button class="btn btn-small" id="proj-add-invite-btn">
+                        <span class="mdi mdi-plus"></span> Add
+                      </button>
+                    </div>
+                    <div id="proj-invite-email-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
+                    <button class="btn btn-primary" style="width:100%;" id="proj-send-invites-btn">
+                      <span class="mdi mdi-send"></span> Send Invites
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Permissions Tab -->
+              <div id="proj-tab-permissions" class="proj-tab-content" style="display:none;">
+                <div class="card">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                    <div class="section-label" style="margin:0;"><span class="mdi mdi-shield-account"></span> Users</div>
+                    <button class="btn btn-small" id="add-user-btn">
+                      <span class="mdi mdi-plus"></span> Add User
+                    </button>
+                  </div>
+                  <div class="help-text" style="margin-bottom:10px;">Manage user access and folder assignments. Click a status dot to activate or deactivate a user. Locked assignments are controlled by Group Policies.</div>
+                  <div id="add-user-row" style="display:none; gap:8px; margin-bottom:10px; align-items:center;">
+                    <input class="input" id="add-user-email-input" placeholder="name@company.com" list="gp-email-datalist" style="flex:1;" />
+                    <datalist id="gp-email-datalist"></datalist>
+                    <button class="btn btn-small" id="add-user-save-btn">
+                      <span class="mdi mdi-check"></span> Save
+                    </button>
+                    <button class="btn btn-secondary" id="add-user-cancel-btn" style="font-size:11px; height:26px; padding:0 10px;">
+                      <span class="mdi mdi-close"></span>
+                    </button>
+                  </div>
+                  <table class="projects-table">
+                    <thead>
+                      <tr>
+                        <th style="width:48px;">Status</th>
+                        <th>Email</th>
+                        <th>Assigned Folder</th>
+                        <th>Joined</th>
+                        <th>Policies</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="permissions-tbody"></tbody>
+                  </table>
+                  <div id="no-users" class="empty-state" style="display:none; padding:24px;">
+                    <span class="mdi mdi-account-multiple-outline"></span>
+                    <div class="es-main">No users yet</div>
+                    <div class="es-sub">No users have joined this project.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Group Policies Tab (project level domain rules) -->
+              <div id="proj-tab-grouppolicies" class="proj-tab-content" style="display:none;">
+                <div class="card" style="max-width:680px;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                    <div class="section-label" style="margin:0;"><span class="mdi mdi-account-badge"></span> Domain Rules</div>
+                    <button class="btn btn-small" id="add-domain-rule-btn">
+                      <span class="mdi mdi-plus"></span> Add Domain
+                    </button>
+                  </div>
+                  <div class="help-text">Automatically assign users from an email domain to a folder in this project. Domains without a folder inherit from Group Policies or project default.</div>
+                  <div id="domain-rule-add-row" style="display:none; gap:8px; margin:10px 0;">
+                    <input class="input" id="perm-domain-input" placeholder="@company.com" style="flex:1;" />
+                    <button class="btn btn-small" id="domain-rule-save-btn">
+                      <span class="mdi mdi-check"></span> Save
+                    </button>
+                    <button class="btn btn-secondary" id="domain-rule-cancel-btn" style="font-size:11px; height:26px; padding:0 10px;">
+                      <span class="mdi mdi-close"></span>
+                    </button>
+                  </div>
+                  <div id="domain-rules-list" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- PUBLISH FILES moved into project Dash tab -->
+
+          <!-- SETTINGS -->
+          <div id="page-settings" class="page" style="display:none;">
+            <div class="page-intro">
+              <h2>Settings</h2>
+              <p>Sync behaviour, version retention and your account.</p>
+            </div>
+            <div class="card" style="max-width:560px;">
+              <div class="section-label"><span class="mdi mdi-account-circle-outline"></span> Account</div>
+              <div style="display:flex; align-items:center; gap:13px; margin-bottom:12px;">
+                <span class="mdi mdi-account-circle" style="font-size:38px; color:var(--color-text-tertiary);"></span>
+                <div>
+                  <div style="font-size:13px; font-weight:600;" id="account-email">Not signed in</div>
+                  <div style="font-size:11px; color:var(--color-text-secondary);" id="account-role">—</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary" style="font-size:11.5px;">
+                <span class="mdi mdi-logout"></span> Sign Out
+              </button>
+            </div>
+
+            <div class="card" style="max-width:560px;">
+              <div class="section-label"><span class="mdi mdi-folder-sync-outline"></span> Sync Location</div>
+              <div class="help-text">The local directory where Sync43 stores managed project folders and received files.</div>
+              <div class="path-field">
+                <input class="input" id="sync-dir" value="C:/Sync43/Projects" />
+                <button class="btn btn-secondary" id="sync-dir-browse" style="white-space:nowrap;">
+                  <span class="mdi mdi-folder-open-outline"></span> Browse…
+                </button>
+              </div>
+              <div id="sync-dir-locked" style="display:none; font-size:11px; opacity:0.5; margin-top:6px;">
+                <span class="mdi mdi-lock"></span> Managed by your company admin.
+              </div>
+            </div>
+
+            <div class="card" style="max-width:560px;">
+              <div class="section-label"><span class="mdi mdi-sync"></span> Sync Preference</div>
+              <div class="help-text">How this client handles incoming publish notifications from peers.</div>
+              <div style="display:flex; gap:16px;" id="sync-pref-controls">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px;">
+                  <input type="radio" name="sync-pref" value="auto" checked /> Auto Sync
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px;">
+                  <input type="radio" name="sync-pref" value="manual" /> Manual Sync
+                </label>
+              </div>
+              <div id="sync-pref-locked" style="display:none; font-size:11px; opacity:0.5; margin-top:6px;">
+                <span class="mdi mdi-lock"></span> Managed by your company admin.
+              </div>
+            </div>
+
+            <div class="card" style="max-width:560px;">
+              <div class="section-label"><span class="mdi mdi-history"></span> Received-File Retention</div>
+              <div class="help-text">For files you <b>receive</b> from peers: how many previous versions to keep before the oldest is removed.</div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <input class="input" type="number" id="version-retention" value="5" min="1" max="50" style="width:84px;" />
+                <span style="font-size:12px; color:var(--color-text-secondary);">versions per received file</span>
+              </div>
+              <div id="retention-locked" style="display:none; font-size:11px; opacity:0.5; margin-top:6px;">
+                <span class="mdi mdi-lock"></span> Managed by your company admin.
+              </div>
+            </div>
+
+            <div class="card" style="max-width:560px;">
+              <div class="section-label"><span class="mdi mdi-archive-outline"></span> Issued-File Archiving</div>
+              <div class="help-text">For files you <b>own and issue</b>: each time you publish a new version, the current file is copied into a dated archive folder and then replaced — preserving a complete issued record.</div>
+              <label style="display:flex; align-items:center; gap:9px; cursor:pointer; font-size:12.5px; margin-bottom:14px;">
+                <input type="checkbox" id="archive-issued" checked /> Archive previous version on each publish
+              </label>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:170px;">
+                  <div class="field-label">Date format</div>
+                  <select class="input" id="archive-date-format">
+                    <option value="YYMMDD">YYMMDD</option>
+                    <option value="YY-MM-DD">YY-MM-DD</option>
+                    <option value="YYYYMMDD">YYYYMMDD</option>
+                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    <option value="YYYY_MM_DD">YYYY_MM_DD</option>
+                    <option value="DDMMYYYY">DDMMYYYY</option>
+                    <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+                  </select>
+                </div>
+                <div style="flex:1; min-width:170px;">
+                  <div class="field-label">Archive file naming</div>
+                  <select class="input" id="archive-name-pattern">
+                    <option value="{date}_{name}">{date}_{name}</option>
+                    <option value="{date}-{name}">{date}-{name}</option>
+                    <option value="{name}_{date}">{name}_{date}</option>
+                    <option value="{name}">{name} (date folder only)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="archive-preview" id="archive-preview"></div>
+              <div id="archive-locked" style="display:none; font-size:11px; opacity:0.5; margin-top:8px;">
+                <span class="mdi mdi-lock"></span> Managed by your company admin.
+              </div>
+            </div>
+          </div>
+
+          <!-- GROUP POLICIES -->
+          <div id="page-grouppolicies" class="page" style="display:none;">
+
+            <div id="grouppolicies-locked-banner" style="display:none; margin-bottom:14px;" class="card">
+              <div style="display:flex; align-items:center; gap:11px;">
+                <span class="mdi mdi-lock" style="font-size:20px; color:var(--color-pending);"></span>
+                <div>
+                  <div style="font-size:12.5px; font-weight:600;">View Only</div>
+                  <div style="font-size:11px; color:var(--color-text-secondary);">Group policies are managed by your company admin.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emails Tab -->
+            <div id="gp-tab-emails" class="gp-tab-content">
+              <div class="card">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                  <div class="section-label" style="margin:0;"><span class="mdi mdi-email-multiple-outline"></span> Email Policies</div>
+                  <button class="btn btn-small" id="gp-add-email-btn">
+                    <span class="mdi mdi-plus"></span> Add Email
+                  </button>
+                </div>
+                <div class="help-text" style="margin-bottom:12px;">Assign individual email addresses to one or more folders across all projects. A folder is optional — you can add emails now and assign folders later, or select several and assign in bulk.</div>
+
+                <div id="gp-bulk-host"></div>
+
+                <div id="gp-emails-add-row" style="display:none; gap:8px; margin-bottom:10px; align-items:center;">
+                  <input class="input" id="gp-new-email" placeholder="name@company.com — or paste several, separated by commas" style="flex:2;" />
+                  <button class="folder-btn is-empty" id="gp-new-email-folder-btn" style="flex:0 0 auto; height:32px;">
+                    <span class="mdi mdi-folder-outline"></span>
+                    <span class="fb-label">Folder (optional)</span>
+                    <span class="mdi mdi-menu-down fb-caret"></span>
+                  </button>
+                  <button class="btn btn-small" id="gp-save-email-btn">
+                    <span class="mdi mdi-check"></span> Save
+                  </button>
+                  <button class="btn btn-secondary" id="gp-cancel-email-btn" style="font-size:11px; height:26px; padding:0 10px;">
+                    <span class="mdi mdi-close"></span>
+                  </button>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                  <div style="flex:1; min-width:0;">
+                    <table class="projects-table">
+                      <thead>
+                        <tr>
+                          <th style="width:34px;"><span class="ccheck" id="gp-select-all"><span class="mdi mdi-check"></span></span></th>
+                          <th>Email</th>
+                          <th>Assigned Folders</th>
+                          <th>Domain Rule</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody id="gp-emails-tbody"></tbody>
+                    </table>
+                    <div id="gp-no-emails" class="empty-state" style="display:none; padding:24px;">
+                      <span class="mdi mdi-email-outline"></span>
+                      <div class="es-main">No email policies yet</div>
+                    </div>
+                  </div>
+
+                  <div id="email-index-strip" style="display:flex; flex-direction:column; align-items:center; gap:1px; padding:4px 2px;">
+                    <button class="index-mode-btn" id="index-mode-toggle" title="Toggle name/domain mode">
+                      <span class="mdi mdi-account" id="index-mode-icon"></span>
+                    </button>
+                    <div class="index-letter" data-letter="#">#</div>
+                    <div class="index-letter" data-letter="@">@</div>
+                    <div id="index-letters"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Domains Tab -->
+            <div id="gp-tab-domains" class="gp-tab-content" style="display:none;">
+              <div class="card">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                  <div class="section-label" style="margin:0;"><span class="mdi mdi-domain"></span> Domain Policies</div>
+                  <button class="btn btn-small" id="add-policy-btn">
+                    <span class="mdi mdi-plus"></span> Add Domain
+                  </button>
+                </div>
+                <div class="help-text">Group emails by domain. A domain rule overrides individual email rules and project assignments.</div>
+
+                <div id="grouppolicies-add-row" style="display:none; gap:8px; margin-top:10px;">
+                  <input class="input" id="policy-domain" placeholder="@company.com" style="flex:1;" />
+                  <button class="btn btn-small" id="gp-save-domain-btn">
+                    <span class="mdi mdi-check"></span> Save
+                  </button>
+                  <button class="btn btn-secondary" id="gp-cancel-domain-btn" style="font-size:11px; height:26px; padding:0 10px;">
+                    <span class="mdi mdi-close"></span>
+                  </button>
+                </div>
+
+                <div id="gp-domains-list" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;"></div>
+                <div id="gp-no-domains" class="empty-state" style="display:none; padding:24px;">
+                  <span class="mdi mdi-domain"></span>
+                  <div class="es-main">No domain policies yet</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MODAL OVERLAY -->
+      <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(8,11,16,0.62); z-index:999;"></div>
+
+      <!-- CREATE PROJECT MODAL -->
+      <div id="modal-create-project" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1000; width:480px; max-height:90vh; overflow-y:auto;">
+        <div class="card modal-card modal-pop" style="margin:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <div class="section-label" style="margin:0;">
+              <span class="mdi mdi-folder-plus-outline"></span> Create Project
+            </div>
+            <button class="btn btn-ghost" id="modal-close-btn" style="font-size:16px; padding:0; width:28px; height:28px;">
+              <span class="mdi mdi-close"></span>
+            </button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:13px;">
+            <div>
+              <div class="field-label">Project Name <span style="color:var(--color-danger);">*</span></div>
+              <input class="input" id="proj-name" placeholder="Enter a project name" />
+            </div>
+            <div>
+              <div class="field-label">Project Number</div>
+              <input class="input" id="proj-number" placeholder="Enter a project number" />
+            </div>
+            <div>
+              <div class="field-label">Address</div>
+              <input class="input" id="proj-address" placeholder="Enter a location" />
+            </div>
+            <div style="display:flex; gap:12px;">
+              <div style="flex:1;">
+                <div class="field-label">Start Date</div>
+                <input class="input" id="proj-start" type="date" />
+              </div>
+              <div style="flex:1;">
+                <div class="field-label">End Date</div>
+                <input class="input" id="proj-end" type="date" />
+              </div>
+            </div>
+            <div>
+              <div class="field-label">Project Location <span style="color:var(--color-danger);">*</span></div>
+              <div class="help-text">Where this project's folders are created on this computer.</div>
+              <div class="path-field">
+                <input class="input" id="proj-location" placeholder="e.g. C:/Sync43/Projects" />
+                <button class="btn btn-secondary" id="proj-location-browse" style="white-space:nowrap;">
+                  <span class="mdi mdi-folder-open-outline"></span> Browse…
+                </button>
+              </div>
+            </div>
+            <div>
+              <div class="field-label">Folder Template</div>
+              <div class="help-text">Select a saved template or clone an existing folder structure.</div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <select class="input" id="proj-template" style="flex:1;">
+                  <option value="standard">Standard Construction</option>
+                  <option value="civil">Civil Infrastructure</option>
+                  <option value="fitout">Interior Fit-out</option>
+                  <option value="blank">Blank</option>
+                </select>
+                <button class="btn btn-secondary" id="clone-folder-btn" style="white-space:nowrap; height:32px; font-size:11px;">
+                  <span class="mdi mdi-content-copy"></span> Clone Folder Structure
+                </button>
+              </div>
+            </div>
+            <div id="folder-preview" style="display:none;">
+              <div class="field-label">Folder Preview</div>
+              <div id="folder-tree" style="background:var(--color-sunken); border-radius:8px; padding:10px; max-height:200px; overflow-y:auto;"></div>
+              <div style="margin-top:8px; display:flex; gap:8px;">
+                <button class="btn btn-small" id="save-template-btn">
+                  <span class="mdi mdi-content-save-outline"></span> Save as Template
+                </button>
+                <button class="btn btn-secondary" style="font-size:11px; height:26px;" id="clear-clone-btn">
+                  <span class="mdi mdi-close"></span> Clear
+                </button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+            <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="modal-create-btn">
+              <span class="mdi mdi-check"></span> Create Project
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEED CODE MODAL -->
+      <div id="modal-seed-code" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1000; width:440px;">
+        <div class="card modal-card modal-pop" style="margin:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div class="section-label" style="margin:0;">
+              <span class="mdi mdi-check-circle-outline"></span> Project Created
+            </div>
+            <button class="btn btn-ghost" id="seed-close-btn" style="font-size:16px; padding:0; width:28px; height:28px;">
+              <span class="mdi mdi-close"></span>
+            </button>
+          </div>
+          <div class="help-text" style="margin-bottom:12px;">
+            Share this Seed Code with your team. Anyone with this code can request access to the project.
+          </div>
+          <div class="seed-code" id="seed-code-display">S43-XXXX-XXXX</div>
+          <div class="copy-hint">Click to copy</div>
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn btn-primary" style="flex:1;" id="share-via-email-btn">
+              <span class="mdi mdi-email-outline"></span> Share via Email
+            </button>
+            <button class="btn btn-secondary" style="flex:1;" id="copy-seed-btn">
+              <span class="mdi mdi-content-copy"></span> Copy Code
+            </button>
+          </div>
+          <div id="email-share-panel" style="display:none; margin-top:16px;">
+            <div class="field-label">Email Addresses</div>
+            <div class="help-text">Enter one or more emails. These users will be pre-approved for access.</div>
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+              <input class="input" id="invite-email-input" placeholder="name@company.com" style="flex:1;" />
+              <button class="btn btn-small" id="add-invite-email-btn">
+                <span class="mdi mdi-plus"></span> Add
+              </button>
+            </div>
+            <div id="invite-email-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
+            <button class="btn btn-primary" style="width:100%;" id="send-invites-btn">
+              <span class="mdi mdi-send"></span> Send Invites
+            </button>
+          </div>
+          <div style="margin-top:14px; text-align:center;">
+            <button class="btn btn-secondary" style="font-size:11.5px;" id="open-project-btn">
+              <span class="mdi mdi-folder-open-outline"></span> Open Project
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVE TEMPLATE MODAL -->
+      <div id="modal-save-template" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1100; width:340px;">
+        <div class="card modal-card modal-pop" style="margin:0;">
+          <div class="section-label" style="margin-bottom:12px;">
+            <span class="mdi mdi-content-save-outline"></span> Save as Template
+          </div>
+          <div class="field-label">Template Name <span style="color:var(--color-danger);">*</span></div>
+          <input class="input" id="template-name" placeholder="e.g. Civil Infrastructure" style="margin-bottom:16px;" />
+          <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-secondary" id="save-template-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="save-template-confirm-btn">
+              <span class="mdi mdi-check"></span> Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GENERIC DIALOG HOST -->
+      <div id="ui-dialog" style="display:none;"></div>
+
+      <!-- TOASTS -->
+      <div id="toast-stack"></div>
+
+    </div>
+
+    <script src="data.js"></script>
+    <script src="ui.js"></script>
+    <script src="publish.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
