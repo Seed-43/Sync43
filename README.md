@@ -1,8 +1,8 @@
-# Sync43 — Construction Data Sync by Seed43
+# Sync43: Construction Data Sync by Seed43
 
 Tauri 2 desktop app. P2P file sync for construction projects.
 
-## Stage 1 (this build) — everything local works for real
+## Stage 1 (this build): everything local works for real
 - Create projects → real folders created on disk at a per-project location
 - Clone Folder Structure → scans a real directory
 - Link files (real OS picker) → Publish copies them into the project folder
@@ -29,5 +29,5 @@ Install Rust (rustup.rs) + Microsoft C++ Build Tools + WebView2 (preinstalled
 on Win 11), then `cargo install tauri-cli --version "^2"` and `cargo tauri dev`.
 
 ## UI prototyping without compiling
-Open `src/index.html` directly in a browser — the mock layer in `data.js`
+Open `src/index.html` directly in a browser, the mock layer in `data.js`
 kicks in with seed data so every screen works for design iteration.
