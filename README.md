@@ -1,3 +1,5 @@
+# WARNING: UNDER DEVELOPMENT - DO NOT USE IN PRODUCTION
+
 # Sync43: Construction Data Sync by Seed43
 
 Tauri 2 desktop app. P2P file sync for construction projects.
